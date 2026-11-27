@@ -106,3 +106,27 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;paddin
 .fine .card{cursor:none}.fine .card:hover .play{opacity:0}
 .thumb{transform:translateZ(0)}.card .thumb img{will-change:transform}
 .off .hero-logo img,.off .reel-strip{animation-play-state:paused}
+
+/* ===== v4: no blend-modes (logo is now transparent PNG), more motion ===== */
+.brand img,.hero-logo img{mix-blend-mode:normal;filter:none}
+.nav{background:#000000ea}
+.hero-logo::before{content:"";position:absolute;width:75%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#ffffff1f,transparent 65%)}
+.hero-logo img{position:relative}
+.card{contain:layout style}
+/* thumbnails wipe in like a cut */
+.card .thumb{clip-path:inset(0 100% 0 0);transition:clip-path 1s cubic-bezier(.77,0,.18,1);transition-delay:inherit}
+.card.in .thumb{clip-path:inset(0)}
+/* headings wipe up */
+.sec h2.rv{clip-path:inset(0 0 100% 0);transition:opacity .9s,transform .9s,clip-path .9s cubic-bezier(.2,.8,.2,1)}
+.sec h2.rv.in{clip-path:inset(-12% -5% -12% -5%)}
+/* service cards: red sweep */
+.svc article{position:relative}
+.svc article::before{content:"";position:absolute;left:0;top:0;width:100%;height:2px;background:var(--red);transform:scaleX(0);transform-origin:left;transition:transform .55s cubic-bezier(.2,.8,.2,1)}
+.svc article:hover::before{transform:scaleX(1)}
+/* playhead scene marker + cut flash */
+.playhead i{transition:width .2s,opacity .2s,box-shadow .2s}
+.playhead.cut i{width:3px;opacity:1;box-shadow:0 0 22px var(--red)}
+.playhead u{position:absolute;top:108px;left:6px;text-decoration:none;font:700 12px Syne;color:#fff;background:var(--red);padding:3px 10px;border-radius:4px;white-space:nowrap;opacity:0;transform:translateY(-6px);transition:.3s}
+.playhead u.show{opacity:1;transform:none}
+@media(max-width:820px){.playhead u{display:none}}
+@media(prefers-reduced-motion:reduce){.card .thumb,.sec h2.rv{clip-path:none!important}}

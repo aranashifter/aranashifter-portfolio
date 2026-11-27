@@ -6,7 +6,7 @@ function parse(url){
   if(!url) return null;
   let m;
   if(m=url.match(/youtube\.com\/shorts\/([\w-]{11})/)) return {embed:`https://www.youtube.com/embed/${m[1]}?autoplay=1&rel=0`,thumb:`https://img.youtube.com/vi/${m[1]}/hqdefault.jpg`,v:true};
-  if(m=url.match(/(?:youtu\.be\/|v=|embed\/)([\w-]{11})/)) return {embed:`https://www.youtube.com/embed/${m[1]}?autoplay=1&rel=0`,thumb:`https://img.youtube.com/vi/${m[1]}/maxresdefault.jpg`};
+  if(m=url.match(/(?:youtu\.be\/|v=|embed\/)([\w-]{11})/)) return {embed:`https://www.youtube.com/embed/${m[1]}?autoplay=1&rel=0`,thumb:`https://img.youtube.com/vi/${m[1]}/sddefault.jpg`};
   if(m=url.match(/vimeo\.com\/(?:video\/)?(\d+)/)) return {embed:`https://player.vimeo.com/video/${m[1]}?autoplay=1`};
   if(m=url.match(/drive\.google\.com\/file\/d\/([\w-]+)/)) return {embed:`https://drive.google.com/file/d/${m[1]}/preview`};
   if(/\.(mp4|webm)(\?|$)/i.test(url)) return {file:url};
@@ -21,7 +21,7 @@ let curCat='All',shown=PER;
 const list=()=>PROJECTS.map((p,i)=>({p,i,v:parse(p.url)})).filter(x=>curCat=='All'||x.p.category==curCat);
 const card=({p,i,v},d)=>`
   <button class="card rv" style="transition-delay:${d*90}ms" data-i="${i}" ${v?'':'aria-disabled="true"'}>
-    <div class="thumb">${v&&v.thumb?`<img src="${v.thumb}" alt="${esc(p.title)}" loading="lazy" onerror="this.src=this.src.replace('maxresdefault','hqdefault')">`:`<div class="ph">${v?'Video':'Your video here'}</div>`}
+    <div class="thumb">${v&&v.thumb?`<img src="${v.thumb}" alt="${esc(p.title)}" loading="lazy" decoding="async" onerror="this.src=this.src.replace('sddefault','hqdefault')">`:`<div class="ph">${v?'Video':'Your video here'}</div>`}
     ${v?'<span class="play">▶</span>':''}</div>
     <h3>${esc(p.title)}</h3><p>${esc(p.note||'')} <small>${esc(p.category)}</small></p></button>`;
 function bar(){

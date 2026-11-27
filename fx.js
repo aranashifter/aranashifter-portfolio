@@ -55,3 +55,23 @@ if(big&&!calm){
 
 /* 6. Pause hero animations when off-screen (keeps scrolling smooth) */
 if(hero)new IntersectionObserver(([e])=>B.classList.toggle('off',!e.isIntersecting)).observe(hero);
+
+/* 7. Scene markers on the playhead + stat count-up */
+(()=>{
+  const names={home:'Intro',work:'Selected work',about:'About',services:'Services',contact:'Contact'};
+  const secs=[...document.querySelectorAll('main section[id]')],head=Q('.playhead'),tag=Q('#scene');
+  let cur=null,t,busy=0;
+  function scene(){
+    const y=scrollY+innerHeight*.4;let s=secs[0];secs.forEach(x=>{if(x.offsetTop<=y)s=x});
+    if(s.id===cur)return;const first=cur===null;cur=s.id;if(first||!tag)return;
+    tag.textContent='Scene: '+(names[cur]||cur);tag.classList.add('show');head.classList.add('cut');
+    clearTimeout(t);t=setTimeout(()=>{tag.classList.remove('show');head.classList.remove('cut')},1400);
+  }
+  addEventListener('scroll',()=>{if(!busy){busy=1;requestAnimationFrame(()=>{scene();busy=0})}},{passive:true});scene();
+  document.querySelectorAll('.stats b').forEach(b=>{
+    const m=b.textContent.match(/(\d+)(.*)/);if(!m||calm)return;
+    const n=+m[1],suf=m[2];b.textContent='0'+suf;
+    new IntersectionObserver(([e],o)=>{if(!e.isIntersecting)return;o.disconnect();const t0=performance.now();
+      (function k(t){const p=Math.min((t-t0)/1400,1);b.textContent=Math.round(n*(1-Math.pow(1-p,3)))+suf;if(p<1)requestAnimationFrame(k)})(t0)}).observe(b);
+  });
+})();
