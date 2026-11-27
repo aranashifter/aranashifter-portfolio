@@ -19,10 +19,12 @@ const SITE = {
    url ফাঁকা থাকলে "Your video here" placeholder দেখাবে। */
 
 const PROJECTS = [
-  { title: "Showreel 2026", category: "Showreel", url: "", note: "আমার সেরা কাজ একসাথে" },
-  { title: "Cinematic edit", category: "Film", url: "", note: "Color, pacing, atmosphere" },
-  { title: "Short-form edit", category: "Social", url: "", note: "Reels, Shorts, TikTok" },
-  { title: "Motion graphics", category: "Motion", url: "", note: "Titles, typography, animation" }
+  { title: "Showreel 2026", category: "Showreel", url: "https://youtu.be/4gkHbJin5dc?si=ceE1W9Ai2tmWIn9f", note: "আমার সেরা কাজ একসাথে" },
+  { title: "Cinematic edit", category: "Film", url: "https://youtu.be/QUx1anKHYuI?si=P5xmoMHeJR5w6of3", note: "Color, pacing, atmosphere" },
+  { title: "Short-form edit", category: "Social", url: "https://youtube.com/shorts/3L4brkOrIYM?si=EnBmsoA6TSz5ORlz", note: "Reels, Shorts, TikTok" },
+  { title: "Motion graphics", category: "Motion", url: "https://youtu.be/BaWrJajJRjA?si=crOsXB7lRgrmoG0O", note: "Titles, typography, animation" },
+  { title: "unknown", category: "unknown", url: "", note: "unknown" },
+   
 
   /* উদাহরণ (আগে // তুলে দাও):
   ,{ title: "My first video", category: "Film", url: "https://www.youtube.com/watch?v=XXXXXXXXXXX", note: "Short description" }
