@@ -16,14 +16,36 @@ function parse(url){
 /* ---- project grid ---- */
 const cats=['All',...new Set(PROJECTS.map(p=>p.category))];
 $('#filters').innerHTML=cats.map((c,i)=>`<button class="${i?'':'on'}" data-c="${esc(c)}">${esc(c)}</button>`).join('');
-function render(cat='All'){
-  $('#grid').innerHTML=PROJECTS.map((p,i)=>({p,i,v:parse(p.url)})).filter(x=>cat=='All'||x.p.category==cat).map(({p,i,v})=>`
-  <button class="card rv" data-i="${i}" ${v?'':'aria-disabled="true"'}>
+const PER=(typeof PER_PAGE!=='undefined'&&PER_PAGE>0)?PER_PAGE:6;
+let curCat='All',shown=PER;
+const list=()=>PROJECTS.map((p,i)=>({p,i,v:parse(p.url)})).filter(x=>curCat=='All'||x.p.category==curCat);
+const card=({p,i,v},d)=>`
+  <button class="card rv" style="transition-delay:${d*90}ms" data-i="${i}" ${v?'':'aria-disabled="true"'}>
     <div class="thumb">${v&&v.thumb?`<img src="${v.thumb}" alt="${esc(p.title)}" loading="lazy" onerror="this.src=this.src.replace('maxresdefault','hqdefault')">`:`<div class="ph">${v?'Video':'Your video here'}</div>`}
     ${v?'<span class="play">▶</span>':''}</div>
-    <h3>${esc(p.title)}</h3><p>${esc(p.note||'')} <small>${esc(p.category)}</small></p></button>`).join('');
-  reveal();
+    <h3>${esc(p.title)}</h3><p>${esc(p.note||'')} <small>${esc(p.category)}</small></p></button>`;
+function bar(){
+  const n=list().length,m=$('#more');
+  if(n<=PER){m.innerHTML='';return}
+  const all=shown>=n,left=Math.min(PER,n-shown);
+  m.innerHTML=`<div class="count"><b>${String(Math.min(shown,n)).padStart(2,'0')}</b> / ${String(n).padStart(2,'0')} videos</div>
+  <div class="prog"><i style="width:${Math.min(shown,n)/n*100}%"></i></div>
+  <button class="btn ghost" type="button">${all?'Show less':`Show ${left} more`}</button>`;
 }
+function render(cat='All'){
+  curCat=cat;shown=PER;
+  $('#grid').innerHTML=list().slice(0,shown).map((x,k)=>card(x,k)).join('');
+  bar();reveal();
+}
+function more(){
+  const l=list(),next=l.slice(shown,shown+PER);
+  $('#grid').insertAdjacentHTML('beforeend',next.map((x,k)=>card(x,k)).join(''));
+  shown+=PER;bar();reveal();
+}
+$('#more').onclick=e=>{
+  if(!e.target.closest('button'))return;
+  if(shown>=list().length){render(curCat);$('#work').scrollIntoView({behavior:'smooth'})}else more();
+};
 $('#filters').onclick=e=>{const b=e.target.closest('button');if(!b)return;document.querySelectorAll('#filters button').forEach(x=>x.classList.toggle('on',x==b));render(b.dataset.c)};
 
 /* ---- video modal ---- */
