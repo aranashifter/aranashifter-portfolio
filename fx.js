@@ -13,20 +13,55 @@ if(L&&!calm){
   })(t0);
 }else{if(L)L.remove();B.classList.add('ready')}
 
-/* 2. Cursor ring: grows into a "Play" bubble over videos */
+/* 2. Viewfinder cursor: dot + camera brackets that lock onto videos and buttons */
 if(fine&&!calm){
-  const c=document.createElement('div');c.className='cur';c.innerHTML='<span></span>';B.append(c);
-  document.documentElement.classList.add('fine');
-  let x=0,y=0,cx=0,cy=0,run=false,first=true;
-  const loop=()=>{cx+=(x-cx)*.4;cy+=(y-cy)*.4;c.style.transform=`translate3d(${cx}px,${cy}px,0)`;
-    if(Math.abs(x-cx)>.1||Math.abs(y-cy)>.1)requestAnimationFrame(loop);else run=false};
-  addEventListener('pointermove',e=>{x=e.clientX;y=e.clientY;if(first){cx=x;cy=y;first=false}c.style.opacity=1;if(!run){run=true;requestAnimationFrame(loop)}},{passive:true});
-  document.addEventListener('mouseleave',()=>c.style.opacity=0);
+  const mk=(cl,h='')=>{const d=document.createElement('div');d.className=cl;d.innerHTML=h;B.append(d);return d};
+  const dot=mk('cdot'),vf=mk('cvf','<div class="vfi"><i></i><i></i><i></i><i></i><span class="scrub"></span></div>'),
+        lab=mk('clab','<em></em>Play <b>00:00:00:00</b>'),tcL=lab.querySelector('b'),scr=vf.querySelector('.scrub');
+  const pad=n=>String(n).padStart(2,'0'),r={x:0,y:0,w:40,h:40};
+  let mx=0,my=0,tgt=null,mode='free',run=false,seen=false,lastTc='';
+  const frame=()=>{
+    if(tgt&&!tgt.isConnected){tgt=null;mode='free';setMode()}
+    let T;
+    if(mode=='free')T={x:mx-20,y:my-20,w:40,h:40};
+    else{const b=tgt.getBoundingClientRect(),p=mode=='lock'?10:6;T={x:b.left-p,y:b.top-p,w:b.width+p*2,h:b.height+p*2}}
+    let d=0;for(const q in T){r[q]+=(T[q]-r[q])*.32;d+=Math.abs(T[q]-r[q])}
+    vf.style.width=r.w+'px';vf.style.height=r.h+'px';vf.style.transform=`translate3d(${r.x}px,${r.y}px,0)`;
+    if(mode=='lock'){
+      scr.style.transform=`translateX(${Math.min(Math.max(mx-r.x,0),r.w)}px)`;
+      const b=tgt.getBoundingClientRect(),s=Math.min(Math.max((mx-b.left)/b.width,0),1)*59,
+            t=`00:${pad(Math.floor(s))}:${pad(Math.floor((s%1)*25))}`;
+      if(t!==lastTc){lastTc=t;tcL.textContent=t}
+    }
+    if(d>.3||mode!='free')requestAnimationFrame(frame);else run=false;
+  };
+  const kick=()=>{if(!run){run=true;requestAnimationFrame(frame)}};
+  const setMode=()=>{
+    vf.classList.toggle('lock',mode=='lock');vf.classList.toggle('link',mode=='link');
+    lab.classList.toggle('show',mode=='lock');dot.classList.toggle('red',mode=='link');dot.classList.toggle('hide',mode=='lock');
+  };
+  addEventListener('pointermove',e=>{
+    mx=e.clientX;my=e.clientY;
+    dot.style.transform=`translate3d(${mx}px,${my}px,0)`;
+    lab.style.transform=`translate3d(${mx>innerWidth-200?mx-170:mx+20}px,${my+22}px,0)`;
+    if(!seen){seen=true;r.x=mx-20;r.y=my-20}
+    B.classList.add('cur-on');kick();
+  },{passive:true});
+  addEventListener('scroll',kick,{passive:true});
+  document.documentElement.addEventListener('mouseleave',()=>B.classList.remove('cur-on'));
   document.addEventListener('mouseover',e=>{
-    const card=e.target.closest('.card[data-i]'),ok=card&&!card.hasAttribute('aria-disabled');
-    c.classList.toggle('play',!!ok);
-    c.classList.toggle('link',!ok&&!!e.target.closest('a,button,input,textarea'));
+    const t=e.target,card=t.closest('.card[data-i]:not([aria-disabled])'),lk=t.closest('a,button');
+    B.classList.toggle('cur-txt',!!t.closest('input,textarea'));
+    if(card){tgt=card.querySelector('.thumb');mode='lock'}
+    else if(lk&&!lk.closest('.card')){tgt=lk;mode='link'}
+    else{tgt=null;mode='free'}
+    setMode();kick();
   });
+  document.addEventListener('pointerdown',()=>vf.classList.add('down'));
+  document.addEventListener('pointerup',()=>vf.classList.remove('down'));
+  document.addEventListener('click',()=>{vf.classList.add('flash');setTimeout(()=>vf.classList.remove('flash'),180)});
+  const md=Q('#modal');if(md)new MutationObserver(()=>B.classList.toggle('mopen',!md.hidden)).observe(md,{attributes:true,attributeFilter:['hidden']});
+  document.documentElement.classList.add('fine');
 }
 
 /* 3. Magnetic buttons */

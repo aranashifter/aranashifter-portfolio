@@ -98,12 +98,6 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;paddin
 .reel-strip{border-top:0}.hero{border-bottom:1px solid var(--line)}
 
 /* ===== Smooth cursor (GPU only) + performance ===== */
-.cur{position:fixed;left:0;top:0;z-index:150;pointer-events:none;opacity:0;will-change:transform}
-.cur span{position:absolute;left:-48px;top:-48px;width:96px;height:96px;border-radius:50%;border:1px solid #fff;display:grid;place-items:center;font:500 14px Inter;color:#000;transform:scale(.28);transition:transform .35s cubic-bezier(.2,.8,.2,1),background .25s,border-color .25s;will-change:transform}
-.cur span::after{content:"Play";opacity:0;transition:opacity .2s}
-.cur.link span{transform:scale(.62);border-color:var(--red)}
-.cur.play span{transform:scale(1);background:var(--fg)}.cur.play span::after{opacity:1}
-.fine .card{cursor:none}.fine .card:hover .play{opacity:0}
 .thumb{transform:translateZ(0)}.card .thumb img{will-change:transform}
 .off .hero-logo img,.off .reel-strip{animation-play-state:paused}
 
@@ -130,3 +124,27 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;paddin
 .playhead u.show{opacity:1;transform:none}
 @media(max-width:820px){.playhead u{display:none}}
 @media(prefers-reduced-motion:reduce){.card .thumb,.sec h2.rv{clip-path:none!important}}
+
+/* ===== Viewfinder cursor ===== */
+.cdot,.cvf,.clab{position:fixed;left:0;top:0;pointer-events:none;opacity:0;will-change:transform}
+.cur-on .cdot,.cur-on .cvf{opacity:1}
+.cdot{z-index:151;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:#fff;transition:background .2s,opacity .2s}
+.cdot.red{background:var(--red)}.cur-on .cdot.hide{opacity:0}
+.cvf{z-index:149;transition:opacity .25s}
+.vfi{position:absolute;inset:0;transition:transform .2s cubic-bezier(.2,.8,.2,1),background .25s}
+.vfi i{position:absolute;width:12px;height:12px;border:0 solid #fff;transition:border-color .25s,width .3s,height .3s}
+.vfi i:nth-child(1){left:0;top:0;border-width:2px 0 0 2px}.vfi i:nth-child(2){right:0;top:0;border-width:2px 2px 0 0}
+.vfi i:nth-child(3){left:0;bottom:0;border-width:0 0 2px 2px}.vfi i:nth-child(4){right:0;bottom:0;border-width:0 2px 2px 0}
+.cvf.link .vfi i{border-color:var(--red)}
+.cvf.lock .vfi i{border-color:var(--red);width:20px;height:20px}
+.scrub{position:absolute;top:0;bottom:0;left:0;width:1px;background:var(--red);opacity:0;transition:opacity .2s}.cvf.lock .scrub{opacity:.9}
+.cvf.down .vfi{transform:scale(.9)}.cvf.flash .vfi{background:#ffffff2b}
+.clab{z-index:152;display:flex;align-items:center;gap:8px;padding:5px 12px;border-radius:99px;background:var(--fg);color:#000;font:500 13px Inter;white-space:nowrap;transition:opacity .2s}
+.clab.show{opacity:1}.clab em{width:7px;height:7px;border-radius:50%;background:var(--red);animation:blink 1s steps(2) infinite}
+.clab b{font-weight:500;color:#555;font-variant-numeric:tabular-nums}
+.cur-txt .cdot,.cur-txt .cvf,.mopen .cdot,.mopen .cvf,.mopen .clab{opacity:0!important}
+html.fine,html.fine *{cursor:none!important}
+html.fine input,html.fine textarea{cursor:text!important}
+html.fine #modal,html.fine #modal *{cursor:auto!important}
+.fine .card:hover .play{opacity:0;transform:scale(.6)}
+@media(max-width:820px){.cdot,.cvf,.clab{display:none}}
