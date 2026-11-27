@@ -17,10 +17,11 @@ if(L&&!calm){
 if(fine&&!calm){
   const c=document.createElement('div');c.className='cur';c.innerHTML='<span></span>';B.append(c);
   document.documentElement.classList.add('fine');
-  let x=0,y=0,cx=0,cy=0;
-  addEventListener('mousemove',e=>{x=e.clientX;y=e.clientY;c.style.opacity=1});
+  let x=0,y=0,cx=0,cy=0,run=false,first=true;
+  const loop=()=>{cx+=(x-cx)*.4;cy+=(y-cy)*.4;c.style.transform=`translate3d(${cx}px,${cy}px,0)`;
+    if(Math.abs(x-cx)>.1||Math.abs(y-cy)>.1)requestAnimationFrame(loop);else run=false};
+  addEventListener('pointermove',e=>{x=e.clientX;y=e.clientY;if(first){cx=x;cy=y;first=false}c.style.opacity=1;if(!run){run=true;requestAnimationFrame(loop)}},{passive:true});
   document.addEventListener('mouseleave',()=>c.style.opacity=0);
-  (function r(){cx+=(x-cx)*.2;cy+=(y-cy)*.2;c.style.transform=`translate(${cx}px,${cy}px)`;requestAnimationFrame(r)})();
   document.addEventListener('mouseover',e=>{
     const card=e.target.closest('.card[data-i]'),ok=card&&!card.hasAttribute('aria-disabled');
     c.classList.toggle('play',!!ok);
@@ -49,5 +50,8 @@ if(big&&!calm){
     const r=big.getBoundingClientRect(),p=Math.min(Math.max((innerHeight*.85-r.top)/(r.height+innerHeight*.3),0),1),k=p*ws.length;
     ws.forEach((s,i)=>s.style.opacity=i<k?1:.18);
   };
-  addEventListener('scroll',f,{passive:true});f();
+  let tk=0;addEventListener('scroll',()=>{if(!tk){tk=1;requestAnimationFrame(()=>{f();tk=0})}},{passive:true});f();
 }
+
+/* 6. Pause hero animations when off-screen (keeps scrolling smooth) */
+if(hero)new IntersectionObserver(([e])=>B.classList.toggle('off',!e.isIntersecting)).observe(hero);

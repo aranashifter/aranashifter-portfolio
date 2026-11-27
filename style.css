@@ -7,7 +7,7 @@ h1,h2,h3{font-family:Syne,sans-serif;margin:0;line-height:1.02;letter-spacing:-.
 .playhead{position:fixed;top:0;left:0;height:100vh;z-index:40;pointer-events:none;transform:translateX(0)}
 .playhead i{position:absolute;top:0;bottom:0;width:1px;background:var(--red);opacity:.55}
 .playhead b{position:absolute;top:78px;left:6px;font:500 11px Inter;color:var(--red);background:#000c;padding:2px 6px;border-radius:4px;white-space:nowrap}
-.nav{position:sticky;top:0;z-index:30;display:flex;justify-content:space-between;align-items:center;padding:12px clamp(20px,5vw,64px);background:#000d;backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.nav{position:sticky;top:0;z-index:30;display:flex;justify-content:space-between;align-items:center;padding:12px clamp(20px,5vw,64px);background:#000f;border-bottom:1px solid var(--line)}
 .brand{display:flex;align-items:center;gap:12px;font:700 18px Syne}
 .brand img{border-radius:50%;mix-blend-mode:lighten}
 .nav nav{display:flex;align-items:center;gap:30px;font-size:14px;color:var(--mut)}
@@ -87,12 +87,6 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;paddin
 .line span{animation-play-state:paused}body.ready .line span{animation-play-state:running}
 .hero-logo{transition:transform .5s cubic-bezier(.2,.8,.2,1);transform-style:preserve-3d}
 .btn,.pill{transition:transform .3s cubic-bezier(.2,.8,.2,1),background .25s,color .25s}
-.cur{position:fixed;left:0;top:0;z-index:150;pointer-events:none;opacity:0}
-.cur span{position:absolute;left:-14px;top:-14px;width:28px;height:28px;border:1px solid #fff;border-radius:50%;display:grid;place-items:center;font:500 14px Inter;color:#000;transition:width .4s cubic-bezier(.2,.8,.2,1),height .4s cubic-bezier(.2,.8,.2,1),left .4s cubic-bezier(.2,.8,.2,1),top .4s cubic-bezier(.2,.8,.2,1),background .3s,border-color .3s}
-.cur.link span{width:60px;height:60px;left:-30px;top:-30px;border-color:var(--red)}
-.cur.play span{width:96px;height:96px;left:-48px;top:-48px;background:var(--fg)}
-.cur.play span::after{content:"Play"}
-.fine .card{cursor:none}
 .big .w{transition:opacity .35s}
 @media(max-width:820px){.cur{display:none}}
 
@@ -102,3 +96,13 @@ footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;paddin
 .prog{width:min(320px,70%);height:2px;background:var(--line);overflow:hidden}
 .prog i{display:block;height:100%;background:var(--red);transition:width .9s cubic-bezier(.2,.8,.2,1)}
 .reel-strip{border-top:0}.hero{border-bottom:1px solid var(--line)}
+
+/* ===== Smooth cursor (GPU only) + performance ===== */
+.cur{position:fixed;left:0;top:0;z-index:150;pointer-events:none;opacity:0;will-change:transform}
+.cur span{position:absolute;left:-48px;top:-48px;width:96px;height:96px;border-radius:50%;border:1px solid #fff;display:grid;place-items:center;font:500 14px Inter;color:#000;transform:scale(.28);transition:transform .35s cubic-bezier(.2,.8,.2,1),background .25s,border-color .25s;will-change:transform}
+.cur span::after{content:"Play";opacity:0;transition:opacity .2s}
+.cur.link span{transform:scale(.62);border-color:var(--red)}
+.cur.play span{transform:scale(1);background:var(--fg)}.cur.play span::after{opacity:1}
+.fine .card{cursor:none}.fine .card:hover .play{opacity:0}
+.thumb{transform:translateZ(0)}.card .thumb img{will-change:transform}
+.off .hero-logo img,.off .reel-strip{animation-play-state:paused}

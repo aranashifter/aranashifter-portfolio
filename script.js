@@ -74,7 +74,7 @@ function tick(){
   const f=Math.floor(p*90*25),pad=n=>String(n).padStart(2,'0');
   tc.textContent=`00:${pad(Math.floor(f/1500))}:${pad(Math.floor(f/25)%60)}:${pad(f%25)}`;
 }
-addEventListener('scroll',tick,{passive:true});addEventListener('resize',tick);tick();
+let tt=0;addEventListener('scroll',()=>{if(!tt){tt=1;requestAnimationFrame(()=>{tick();tt=0})}},{passive:true});addEventListener('resize',tick);tick();
 
 /* ---- menu ---- */
 const burger=$('.burger'),menu=$('#menu');
