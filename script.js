@@ -1,11 +1,68 @@
-const toggle = document.querySelector('.menu-toggle');
-const links = document.querySelector('.nav-links');
-toggle.addEventListener('click', () => {
-  const open = links.classList.toggle('open');
-  toggle.setAttribute('aria-expanded', String(open));
-});
-document.querySelectorAll('.nav-links a').forEach(link => link.addEventListener('click', () => {
-  links.classList.remove('open');
-  toggle.setAttribute('aria-expanded', 'false');
-}));
-document.getElementById('year').textContent = new Date().getFullYear();
+const $=s=>document.querySelector(s);
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---- video link → embed ---- */
+function parse(url){
+  if(!url) return null;
+  let m;
+  if(m=url.match(/youtube\.com\/shorts\/([\w-]{11})/)) return {embed:`https://www.youtube.com/embed/${m[1]}?autoplay=1&rel=0`,thumb:`https://img.youtube.com/vi/${m[1]}/hqdefault.jpg`,v:true};
+  if(m=url.match(/(?:youtu\.be\/|v=|embed\/)([\w-]{11})/)) return {embed:`https://www.youtube.com/embed/${m[1]}?autoplay=1&rel=0`,thumb:`https://img.youtube.com/vi/${m[1]}/maxresdefault.jpg`};
+  if(m=url.match(/vimeo\.com\/(?:video\/)?(\d+)/)) return {embed:`https://player.vimeo.com/video/${m[1]}?autoplay=1`};
+  if(m=url.match(/drive\.google\.com\/file\/d\/([\w-]+)/)) return {embed:`https://drive.google.com/file/d/${m[1]}/preview`};
+  if(/\.(mp4|webm)(\?|$)/i.test(url)) return {file:url};
+  return {embed:url};
+}
+
+/* ---- project grid ---- */
+const cats=['All',...new Set(PROJECTS.map(p=>p.category))];
+$('#filters').innerHTML=cats.map((c,i)=>`<button class="${i?'':'on'}" data-c="${esc(c)}">${esc(c)}</button>`).join('');
+function render(cat='All'){
+  $('#grid').innerHTML=PROJECTS.map((p,i)=>({p,i,v:parse(p.url)})).filter(x=>cat=='All'||x.p.category==cat).map(({p,i,v})=>`
+  <button class="card rv" data-i="${i}" ${v?'':'aria-disabled="true"'}>
+    <div class="thumb">${v&&v.thumb?`<img src="${v.thumb}" alt="${esc(p.title)}" loading="lazy" onerror="this.src=this.src.replace('maxresdefault','hqdefault')">`:`<div class="ph">${v?'Video':'Your video here'}</div>`}
+    ${v?'<span class="play">▶</span>':''}</div>
+    <h3>${esc(p.title)}</h3><p>${esc(p.note||'')} <small>${esc(p.category)}</small></p></button>`).join('');
+  reveal();
+}
+$('#filters').onclick=e=>{const b=e.target.closest('button');if(!b)return;document.querySelectorAll('#filters button').forEach(x=>x.classList.toggle('on',x==b));render(b.dataset.c)};
+
+/* ---- video modal ---- */
+const modal=$('#modal'),frame=$('#frame');
+$('#grid').onclick=e=>{
+  const c=e.target.closest('.card');if(!c)return;
+  const v=parse(PROJECTS[c.dataset.i].url);if(!v)return;
+  frame.className='frame'+(v.v?' v':'');
+  frame.innerHTML=v.file?`<video src="${v.file}" controls autoplay playsinline></video>`:`<iframe src="${v.embed}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
+  modal.hidden=false;document.body.style.overflow='hidden';
+};
+function closeM(){modal.hidden=true;frame.innerHTML='';document.body.style.overflow=''}
+modal.onclick=e=>{if(e.target==modal||e.target.closest('.close'))closeM()};
+addEventListener('keydown',e=>{if(e.key=='Escape')closeM()});
+
+/* ---- scroll reveal ---- */
+const io=new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target)}}),{threshold:.12});
+function reveal(){document.querySelectorAll('.rv:not(.in)').forEach(el=>io.observe(el))}
+document.querySelectorAll('.sec h2,.sec .cols,.stats,.svc article,form').forEach(el=>el.classList.add('rv'));reveal();
+
+/* ---- timeline playhead (scroll = timecode) ---- */
+const ph=document.querySelector('.playhead'),tc=$('#tc');
+function tick(){
+  const max=document.documentElement.scrollHeight-innerHeight||1,p=scrollY/max;
+  ph.style.transform=`translateX(${p*(innerWidth-2)}px)`;
+  const f=Math.floor(p*90*25),pad=n=>String(n).padStart(2,'0');
+  tc.textContent=`00:${pad(Math.floor(f/1500))}:${pad(Math.floor(f/25)%60)}:${pad(f%25)}`;
+}
+addEventListener('scroll',tick,{passive:true});addEventListener('resize',tick);tick();
+
+/* ---- menu ---- */
+const burger=$('.burger'),menu=$('#menu');
+burger.onclick=()=>burger.setAttribute('aria-expanded',menu.classList.toggle('open'));
+menu.onclick=e=>{if(e.target.tagName=='A'){menu.classList.remove('open');burger.setAttribute('aria-expanded','false')}};
+
+/* ---- contact + social ---- */
+const mail=$('#mail');mail.href='mailto:'+SITE.email;mail.textContent=SITE.email;
+$('#form').onsubmit=e=>{e.preventDefault();const f=e.target;
+  location.href=`mailto:${SITE.email}?subject=${encodeURIComponent('Project inquiry from '+f.n.value)}&body=${encodeURIComponent(f.m.value+'\n\n— '+f.n.value+' ('+f.e.value+')')}`};
+$('#social').innerHTML=[['Instagram',SITE.instagram],['YouTube',SITE.youtube],['Facebook',SITE.facebook],['WhatsApp',SITE.whatsapp]].filter(s=>s[1]).map(s=>`<a href="${s[1]}" target="_blank" rel="noopener">${s[0]} ↗</a>`).join('');
+$('#year').textContent=new Date().getFullYear();
+render();
