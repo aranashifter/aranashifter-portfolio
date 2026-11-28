@@ -50,7 +50,7 @@ if(fine&&!calm){
   addEventListener('scroll',kick,{passive:true});
   document.documentElement.addEventListener('mouseleave',()=>B.classList.remove('cur-on'));
   document.addEventListener('mouseover',e=>{
-    const t=e.target,card=t.closest('.card[data-i]:not([aria-disabled])'),lk=t.closest('a,button');
+    const t=e.target,card=t.closest('.card[data-i]:not([aria-disabled])'),lk=t.closest('a,button,.tile');
     B.classList.toggle('cur-txt',!!t.closest('input,textarea'));
     if(card){tgt=card.querySelector('.thumb');mode='lock'}
     else if(lk&&!lk.closest('.card')){tgt=lk;mode='link'}
@@ -115,4 +115,15 @@ if(hero)new IntersectionObserver(([e])=>B.classList.toggle('off',!e.isIntersecti
 (()=>{
   const io2=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target._h.classList.add('in');io2.unobserve(e.target)}}),{threshold:.1});
   document.querySelectorAll('.sec h2').forEach(h=>{const p=h.parentElement;p._h=h;io2.observe(p)});
+})();
+
+/* 9. Toolkit tiles: spotlight + 3D tilt */
+(()=>{
+  if(!fine||calm)return;
+  document.querySelectorAll('.tool').forEach(t=>{
+    const tile=t.querySelector('.tile'),set=(k,v)=>tile.style.setProperty(k,v);
+    t.addEventListener('pointermove',e=>{const r=tile.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;
+      set('--mx',x*100+'%');set('--my',y*100+'%');set('--rx',(.5-y)*10+'deg');set('--ry',(x-.5)*12+'deg')});
+    t.addEventListener('pointerleave',()=>{set('--rx','0deg');set('--ry','0deg')});
+  });
 })();
