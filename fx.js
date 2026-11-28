@@ -50,7 +50,7 @@ if(fine&&!calm){
   addEventListener('scroll',kick,{passive:true});
   document.documentElement.addEventListener('mouseleave',()=>B.classList.remove('cur-on'));
   document.addEventListener('mouseover',e=>{
-    const t=e.target,card=t.closest('.card[data-i]:not([aria-disabled])'),lk=t.closest('a,button,.tile');
+    const t=e.target,card=t.closest('.card[data-i]:not([aria-disabled])'),lk=t.closest('a,button,.tile,.clip');
     B.classList.toggle('cur-txt',!!t.closest('input,textarea'));
     if(card){tgt=card.querySelector('.thumb');mode='lock'}
     else if(lk&&!lk.closest('.card')){tgt=lk;mode='link'}
@@ -126,4 +126,41 @@ if(hero)new IntersectionObserver(([e])=>B.classList.toggle('off',!e.isIntersecti
       set('--mx',x*100+'%');set('--my',y*100+'%');set('--rx',(.5-y)*10+'deg');set('--ry',(x-.5)*12+'deg')});
     t.addEventListener('pointerleave',()=>{set('--rx','0deg');set('--ry','0deg')});
   });
+})();
+
+/* 10. Hero skills timeline: 3 tracks of clips. Scroll = faster, hover = smooth stop */
+(()=>{
+  const host=Q('#reel');if(!host)return;
+  const T=[
+   {lbl:'V1',color:'#8f8cff',v:40,dir:'normal',c:[['Video editing',250],['Storytelling',230],['Aranashifter',250],['Short-form',220],['Cinematic cuts',270],['Jump cuts',200]]},
+   {lbl:'V2',color:'#d28bff',v:52,dir:'reverse',c:[['Motion graphics',270],['Color grading',240],['Titles & type',240],['Transitions',220],['Visual effects',250]]},
+   {lbl:'A1',color:'#19e3b5',v:46,dir:'normal',a:1,c:[['Sound design',230],['Music sync',210],['Voice & mix',220],['Beat cuts',190]]}
+  ];
+  const hs=n=>{const s=Math.sin(n*91.7)*43758.5;return s-Math.floor(s)};
+  const wf=(w,k)=>{let d='';for(let i=0;i<w/5;i++){const h=3+hs(i+k)*14;d+=`M${i*5+2} ${10-h/2}v${h}`}return `<svg viewBox="0 0 ${w} 20" preserveAspectRatio="none" aria-hidden="true"><path d="${d}"/></svg>`};
+  const anims=[];
+  T.forEach((t,i)=>{
+    const sum=t.c.reduce((s,x)=>s+x[1]+8,0),reps=Math.ceil(4200/sum),half=sum*reps;
+    const seq=Array(reps).fill(t.c.map(([n,w],k)=>`<div class="clip" style="width:${w}px"><i></i>${t.a?wf(w-24,k*7+i):''}<span>${n}</span></div>`).join('')).join('');
+    const trk=document.createElement('div');trk.className='trk'+(t.a?' a':'');trk.style.setProperty('--c',t.color);
+    trk.innerHTML=`<span class="lbl">${t.lbl}</span><div class="lane"><div class="run">${seq}${seq}</div></div>`;host.append(trk);
+    if(!calm&&trk.firstChild){
+      const a=trk.querySelector('.run').animate([{transform:'translateX(0)'},{transform:`translateX(-${half}px)`}],{duration:half/t.v*1000,iterations:Infinity,direction:t.dir});
+      a.currentTime=half/t.v*1000*(.2+i*.31);anims.push(a);
+    }
+  });
+  if(calm)return;
+  let rate=1,last=scrollY,hover=false,vis=true,raf=0;
+  const tick=()=>{
+    const dy=Math.abs(scrollY-last);last=scrollY;
+    const target=hover?0:1+Math.min(dy/6,7);rate+=(target-rate)*.12;
+    const done=Math.abs(target-rate)<.02&&!dy;if(done)rate=target;
+    anims.forEach(a=>a.updatePlaybackRate(rate));
+    raf=done?0:requestAnimationFrame(tick);
+  };
+  const kick=()=>{if(vis&&!raf)raf=requestAnimationFrame(tick)};
+  addEventListener('scroll',kick,{passive:true});
+  host.addEventListener('pointerenter',()=>{hover=true;kick()});
+  host.addEventListener('pointerleave',()=>{hover=false;kick()});
+  new IntersectionObserver(([e])=>{vis=e.isIntersecting;anims.forEach(a=>vis?a.play():a.pause());kick()}).observe(host);
 })();
