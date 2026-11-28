@@ -24,7 +24,7 @@ const PROJECTS = [
   { title: "Short-form edit", category: "Social", url: "https://youtube.com/shorts/3L4brkOrIYM?si=EnBmsoA6TSz5ORlz", note: "Reels, Shorts, TikTok" },
   { title: "Motion graphics", category: "Motion", url: "https://youtu.be/BaWrJajJRjA?si=crOsXB7lRgrmoG0O", note: "Titles, typography, animation" },
   { title: "Cover Song edit", category: "Lyrics ", url: "https://youtu.be/af0z_511SWM?si=FlRpDrJ0hxmF4Eu_", note: "Text, Song, Lyrics" },
-   { title: "unknown", category: "unknown", url: "", note: "unknown" }
+  { title: "unknown", category: "unknown", url: "", note: "unknown" }
    
 
   /* উদাহরণ (আগে // তুলে দাও):
