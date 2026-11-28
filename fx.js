@@ -110,3 +110,9 @@ if(hero)new IntersectionObserver(([e])=>B.classList.toggle('off',!e.isIntersecti
       (function k(t){const p=Math.min((t-t0)/1400,1);b.textContent=Math.round(n*(1-Math.pow(1-p,3)))+suf;if(p<1)requestAnimationFrame(k)})(t0)}).observe(b);
   });
 })();
+
+/* 8. Heading wipe trigger: watch the heading's PARENT (a fully clipped element is never "visible" to the browser) */
+(()=>{
+  const io2=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target._h.classList.add('in');io2.unobserve(e.target)}}),{threshold:.1});
+  document.querySelectorAll('.sec h2').forEach(h=>{const p=h.parentElement;p._h=h;io2.observe(p)});
+})();
